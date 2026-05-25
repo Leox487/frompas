@@ -5,21 +5,23 @@ import { useEffect, useState } from "react";
 
 interface Person {
   name: string;
-  business: string;
-  how_they_started: string;
-  revenue_or_scale: string;
+  what_they_did: string;
+  first_customer: string;
+  time_to_first_dollar: string;
+  year_one_income: string;
   link: string | null;
 }
 
-interface BusinessModel {
-  name: string;
-  description: string;
+interface FirstStep {
+  action: string;
+  expected_outcome: string;
 }
 
 interface Report {
   passion: string;
   people: Person[];
-  business_models: BusinessModel[];
+  first_steps: FirstStep[];
+  honest_note?: string;
 }
 
 export default function ResultsPage() {
@@ -60,18 +62,28 @@ export default function ResultsPage() {
 
         <section className="results-section">
           <h2 className="results-heading">
-            Real people who built businesses from this passion
+            Regular people who made money from this passion
           </h2>
           <div className="person-grid">
             {report.people.map((person, i) => (
               <article key={`${person.name}-${i}`} className="person-card">
                 <h3 className="person-name">{person.name}</h3>
-                <p className="person-built">{person.business}</p>
-                <p className="person-detail">{person.how_they_started}</p>
-                {person.revenue_or_scale &&
-                person.revenue_or_scale !== "Not publicly available" ? (
-                  <p className="person-revenue">{person.revenue_or_scale}</p>
-                ) : null}
+                <p className="person-built">{person.what_they_did}</p>
+                <div className="person-details">
+                  <p className="person-detail">
+                    <strong>First customer:</strong> {person.first_customer}
+                  </p>
+                  <p className="person-detail">
+                    <strong>Time to first $:</strong>{" "}
+                    {person.time_to_first_dollar}
+                  </p>
+                  {person.year_one_income &&
+                  person.year_one_income !== "Not disclosed" ? (
+                    <p className="person-revenue">
+                      Year 1: {person.year_one_income}
+                    </p>
+                  ) : null}
+                </div>
                 {person.link ? (
                   <a
                     href={person.link}
@@ -79,7 +91,7 @@ export default function ResultsPage() {
                     rel="noopener noreferrer"
                     className="person-link"
                   >
-                    Visit site
+                    Read their story
                   </a>
                 ) : null}
               </article>
@@ -89,17 +101,23 @@ export default function ResultsPage() {
 
         <section className="results-section">
           <h2 className="results-heading">
-            Top business models for this passion
+            3 things you can do this week
           </h2>
           <ol className="model-list">
-            {report.business_models.map((model, i) => (
-              <li key={`${model.name}-${i}`} className="model-item">
-                <p className="model-name">{model.name}</p>
-                <p className="model-description">{model.description}</p>
+            {report.first_steps.map((step, i) => (
+              <li key={`step-${i}`} className="model-item">
+                <p className="model-name">{step.action}</p>
+                <p className="model-description">{step.expected_outcome}</p>
               </li>
             ))}
           </ol>
         </section>
+
+        {report.honest_note ? (
+          <section className="results-section">
+            <p className="results-muted">{report.honest_note}</p>
+          </section>
+        ) : null}
 
         <div className="results-actions">
           <Link href="/" className="btn btn-primary">

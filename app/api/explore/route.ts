@@ -6,26 +6,28 @@ export const runtime = "nodejs";
 const MODEL = "claude-sonnet-4-6";
 
 const SYSTEM_PROMPT =
-  "You are a research analyst. The user has a passion. Search the web and find 5-8 real people who turned that exact passion into a business. For each person include: their name, what they built, how they started, approximate revenue or scale if available, and a link if you found one. Then list the top 3 business models that work for this passion with a one-sentence explanation of each. Be specific and factual — only include real people you actually find, not hypothetical examples.";
+  "You are a research analyst helping someone figure out how to make money from their passion. Search the web specifically for REGULAR people — not celebrities or famous entrepreneurs — who turned this passion into their first $1,000 to $50,000 in income. Look on Reddit (r/entrepreneur, r/sidehustle, r/personalfinance), Indie Hackers, YouTube creator stories, and personal blogs. For each person find: their first name or username, what they actually did (be specific — not 'started a photography business' but 'charged $150/session for family portraits at local parks'), how they got their first customer, how long it took, and approximately how much they made in year one. Only include people who started with little to no money or experience. If you cannot find real documented examples, say so honestly. Then list 3 specific first steps someone could take THIS WEEK to start making money from this passion — not general advice, specific actions with realistic expected outcomes.";
 
 const RESPONSE_FORMAT_INSTRUCTION = `After researching, respond with ONLY a valid JSON object (no markdown fences, no commentary) matching this exact schema:
 {
   "passion": "the passion as entered",
   "people": [
     {
-      "name": "Full Name",
-      "business": "What they built",
-      "how_they_started": "1-2 sentence origin story",
-      "revenue_or_scale": "Revenue/scale info or 'Not publicly available'",
-      "link": "URL or null"
+      "name": "First name or username",
+      "what_they_did": "Specific description of what they actually did to make money",
+      "first_customer": "How they got their first paying customer",
+      "time_to_first_dollar": "How long it took to earn their first income",
+      "year_one_income": "Approximate income in year one, or 'Not disclosed'",
+      "link": "URL to their post/story or null"
     }
   ],
-  "business_models": [
+  "first_steps": [
     {
-      "name": "Model Name",
-      "description": "One sentence explanation"
+      "action": "Specific action to take this week",
+      "expected_outcome": "Realistic expected result from this action"
     }
-  ]
+  ],
+  "honest_note": "If you could not find enough real documented examples, explain what you found instead and be transparent about it"
 }`;
 
 export async function POST(req: Request) {
