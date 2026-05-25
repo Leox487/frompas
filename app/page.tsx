@@ -1,66 +1,80 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  const [passion, setPassion] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = passion.trim();
+    if (!trimmed || loading) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/explore", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passion: trimmed }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong. Try again.");
+        return;
+      }
+
+      sessionStorage.setItem("frompas_result", JSON.stringify(data));
+      router.push("/results");
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="landing">
+      <h1 className="landing-headline">
+        What if your passion could be a business?
+      </h1>
+      <p className="landing-sub">
+        Type what you love. We&apos;ll search the web and show you real people
+        who turned that exact passion into a real business — with names, models,
+        and revenue.
+      </p>
+
+      <form className="landing-form" onSubmit={onSubmit}>
+        <input
+          type="text"
+          className="landing-input"
+          placeholder="What's your passion?"
+          value={passion}
+          onChange={(e) => setPassion(e.target.value)}
+          required
+          autoFocus
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <button
+          type="submit"
+          className="btn btn-primary btn-large"
+          disabled={loading || !passion.trim()}
+        >
+          {loading ? "Searching…" : "Find paths"}
+        </button>
+      </form>
+
+      {error ? <p className="landing-note" style={{ color: "#dc2626" }}>{error}</p> : null}
+
+      <p className="landing-note">
+        Powered by Claude AI with real-time web search. No login required.
+      </p>
+    </main>
   );
 }
